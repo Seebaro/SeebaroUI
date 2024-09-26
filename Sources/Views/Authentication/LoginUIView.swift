@@ -65,7 +65,9 @@ extension LoginUIView {
                     .frame(width: geometry.size.width)
                     .frame(minHeight: geometry.size.height)
             }
+            #if !os(watchOS)
             .clipped()
+            #endif
         }
         
         #if os(macOS)
@@ -79,6 +81,7 @@ extension LoginUIView {
     
     var content: some View {
         VStack {
+            #if !os(watchOS)
             Spacer()
             
             // MARK: - App Logo
@@ -90,6 +93,7 @@ extension LoginUIView {
                 .padding()
                 .frame(maxHeight: 150)
                 .shadow(radius: 2)
+            #endif
             
             VStack {
                 // MARK: - Fields
