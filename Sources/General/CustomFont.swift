@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-extension UXFont {
+public extension UXFont {
     static func custom(name: String, style: UXFont.TextStyle) -> UXFont {
         return UXFont(
             name: name,
@@ -16,7 +16,7 @@ extension UXFont {
     }
 }
 
-extension Font {
+public extension Font {
     static func customFont(
         name: String,
         style: UXFont.TextStyle,

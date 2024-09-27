@@ -7,17 +7,33 @@
 
 import SwiftUI
 
-struct EmptyStateView: View {
+public struct EmptyStateView: View {
     
-    var icon: String
-    var title: LocalizedStringKey
-    var description: LocalizedStringKey
+    public init(
+        icon: String,
+        title: LocalizedStringKey,
+        description: LocalizedStringKey,
+        showAction: Bool = true,
+        actionTitle: LocalizedStringKey? = nil,
+        action: (() -> Void)? = nil
+    ) {
+        self.icon = icon
+        self.title = title
+        self.description = description
+        self.showAction = showAction
+        self.actionTitle = actionTitle
+        self.action = action
+    }
     
-    var showAction: Bool = true
-    var actionTitle: LocalizedStringKey? = nil
-    var action: (() -> Void)? = nil
+    public var icon: String
+    public var title: LocalizedStringKey
+    public var description: LocalizedStringKey
     
-    var body: some View {
+    public var showAction: Bool = true
+    public var actionTitle: LocalizedStringKey? = nil
+    public var action: (() -> Void)? = nil
+    
+    public var body: some View {
         Group {
             if #available(iOS 17.0, macOS 14.0, visionOS 1.0, watchOS 10.0, *) {
                 ContentUnavailableView {
