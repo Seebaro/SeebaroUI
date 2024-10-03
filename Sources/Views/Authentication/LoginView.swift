@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public struct LoginUIView: View {
+public struct LoginView: View {
     
     public init(
         username: Binding<String>,
@@ -54,10 +54,24 @@ public struct LoginUIView: View {
     private enum LoginField: Hashable {
         case username, password
     }
+    
+    /// Warning checks
+    @State private var warningUsername: Bool = false
+    @State private var warningPassword: Bool = false
 }
 
-extension LoginUIView {
-    
+extension LoginView {
+    func checkBeforeAction() {
+        warningUsername = username.isEmpty
+        warningPassword = password.isEmpty
+        
+        if !warningUsername && !warningPassword {
+            loginAction()
+        }
+    }
+}
+
+extension LoginView {
     public var body: some View {
         GeometryReader { geometry in
             ScrollView(.vertical) {
@@ -69,7 +83,6 @@ extension LoginUIView {
             .clipped()
             #endif
         }
-        
         #if os(macOS)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background {
@@ -87,7 +100,6 @@ extension LoginUIView {
             // MARK: - App Logo
             Image(.seebaro)
                 .resizable()
-                .renderingMode(.template)
                 .foregroundStyle(.primary)
                 .aspectRatio(contentMode: .fit)
                 .padding()
@@ -115,6 +127,15 @@ extension LoginUIView {
                             }
                     } icon: {
                         Image(systemName: usernameFieldSymbol)
+                            .foregroundStyle(warningUsername ? .red : .primary)
+                            .apply {
+                                if #available(iOS 18.0, macOS 15.0, tvOS 18.0, visionOS 2.0, watchOS 11.0, *) {
+                                    $0.symbolEffect(.wiggle, value: warningUsername)
+                                        
+                                } else if #available(iOS 17.0, macOS 14.0, tvOS 17.0, visionOS 1.0, watchOS 10.0, *) {
+                                    $0.symbolEffect(.bounce, value: warningUsername)
+                                }
+                            }
                     }
                     
                     Label {
@@ -126,9 +147,18 @@ extension LoginUIView {
                             .submitLabel(.done)
                             .disabled(isLoading)
                             .padding()
-                            .onSubmit(loginAction)
+                            .onSubmit(checkBeforeAction)
                     } icon: {
                         Image(systemName: passwordFieldSymbol)
+                            .foregroundStyle(warningPassword ? .red : .primary)
+                            .apply {
+                                if #available(iOS 18.0, macOS 15.0, tvOS 18.0, visionOS 2.0, watchOS 11.0, *) {
+                                    $0.symbolEffect(.wiggle, value: warningPassword)
+                                        
+                                } else if #available(iOS 17.0, macOS 14.0, tvOS 17.0, visionOS 1.0, watchOS 10.0, *) {
+                                    $0.symbolEffect(.bounce, value: warningPassword)
+                                }
+                            }
                     }
                 }
                 .textFieldStyle(.plain)
@@ -140,11 +170,8 @@ extension LoginUIView {
                 
                 // MARK: - Login button
                 ZStack {
-                    ProgressView()
-                        .opacity(isLoading ? 1 : 0)
-                    
-                    Button(action: loginAction) {
-                        Text(loginButtonTitle)
+                    Button(action: checkBeforeAction) {
+                        Text(isLoading ? " " : loginButtonTitle)
                             .font(.body)
                             .fontWeight(.semibold)
                             .frame(maxWidth: .infinity)
@@ -154,7 +181,16 @@ extension LoginUIView {
                     .controlSize(.large)
                     .buttonStyle(.borderedProminent)
                     .padding(.vertical)
-                    .opacity(isLoading ? 0 : 1)
+                    .disabled(isLoading)
+                    .apply {
+                        if #available(iOS 17.0, *) {
+                            $0.sensoryFeedback(.error, trigger: !warningUsername || !warningPassword || !errorMessage.isEmpty)
+                        }
+                    }
+                    
+                    if isLoading {
+                        ProgressView()
+                    }
                 }
                 
                 // MARK: - Response message
@@ -177,7 +213,7 @@ extension LoginUIView {
     @Previewable @State var loading: Bool = false
     @Previewable @State var errorMessage: String = ""
     
-    LoginUIView(
+    LoginView(
         username: $username,
         password: $password,
         isLoading: loading,
