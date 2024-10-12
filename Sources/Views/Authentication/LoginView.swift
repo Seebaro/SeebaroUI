@@ -134,6 +134,8 @@ extension LoginView {
                                         
                                 } else if #available(iOS 17.0, macOS 14.0, tvOS 17.0, visionOS 1.0, watchOS 10.0, *) {
                                     $0.symbolEffect(.bounce, value: warningUsername)
+                                } else {
+                                    $0
                                 }
                             }
                     }
@@ -157,6 +159,8 @@ extension LoginView {
                                         
                                 } else if #available(iOS 17.0, macOS 14.0, tvOS 17.0, visionOS 1.0, watchOS 10.0, *) {
                                     $0.symbolEffect(.bounce, value: warningPassword)
+                                } else {
+                                    $0
                                 }
                             }
                     }
@@ -182,12 +186,15 @@ extension LoginView {
                     .buttonStyle(.borderedProminent)
                     .padding(.vertical)
                     .disabled(isLoading)
+                    #if os(iOS)
                     .apply {
                         if #available(iOS 17.0, *) {
                             $0.sensoryFeedback(.error, trigger: !warningUsername || !warningPassword || !errorMessage.isEmpty)
+                        } else {
+                            $0
                         }
                     }
-                    
+                    #endif
                     if isLoading {
                         ProgressView()
                     }
