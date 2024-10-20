@@ -255,6 +255,7 @@ extension AppDetailsView {
     }
 }
 
+@available(iOS 16.0, macOS 13.0, *)
 #Preview {
     NavigationStack {
         AppDetailsView(
