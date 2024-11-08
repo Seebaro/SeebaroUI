@@ -6,7 +6,7 @@
 //
 import SwiftUI
 
-public struct AppInfo: Identifiable {
+public struct AppInfo: Identifiable, Equatable {
     public init(
         id: UUID = UUID(),
         icon: String,

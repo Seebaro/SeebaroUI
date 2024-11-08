@@ -49,23 +49,23 @@ struct AppDetailsView {
 }
 
 extension AppDetailsView {
-    var iconSize: CGFloat {
-        #if os(iOS) || os(macOS) || os(visionOS)
-        return 125
-        #elseif os(watchOS)
+    private var iconSize: CGFloat {
+        #if os(watchOS)
         return 64
+        #else
+        return 125
         #endif
     }
     
-    var iconShapeStyle: some Shape {
-        #if os(iOS) || os(macOS)
-        return RoundedRectangle(cornerRadius: 27)
-        #elseif os(watchOS) || os(visionOS)
+    private var iconShape: some Shape {
+        #if os(watchOS) || os(visionOS)
         return Circle()
+        #else
+        return RoundedRectangle(cornerRadius: 27)
         #endif
     }
     
-    var screenshotHeight: CGFloat {
+    private var screenshotHeight: CGFloat {
         #if os(watchOS)
         return 150
         #else
@@ -77,67 +77,77 @@ extension AppDetailsView {
 extension AppDetailsView: View {
     public var body: some View {
         List {
-            // MARK: - App info section
-            Section {
-                #if os(watchOS)
-                VStack {
-                    HStack {
-                        iconImage
-                        
-                        Spacer()
-                        
-                        installButton
-                            .frame(maxWidth: 72)
-                    }
-                    
-                    nameText
-                    subtitleText
-                }
-                #else
-                HStack(spacing: 20) {
+            appInfoSection
+            appDetailsSection
+            if !screenshots.isEmpty { screenshotsSection }
+            detailsSection
+        }
+    }
+    
+    @MainActor
+    private var appInfoSection: some View {
+        Section {
+            #if os(watchOS)
+            VStack {
+                HStack {
                     iconImage
                     
-                    VStack(alignment: .leading) {
-                        nameText
-                        
-                        subtitleText
-                        
-                        Spacer()
-                        
-                        installButton
-                    }
+                    Spacer()
+                    
+                    installButton
+                        .frame(maxWidth: 72)
                 }
-                #endif
                 
+                nameText
+                subtitleText
             }
-            .listRowInsets(.init())
-            .listRowBackground(Color.clear)
-            #if os(macOS)
-            .padding(.bottom)
+            #else
+            HStack(spacing: 20) {
+                iconImage
+                
+                VStack(alignment: .leading) {
+                    nameText
+                    
+                    subtitleText
+                    
+                    Spacer()
+                    
+                    installButton
+                }
+            }
             #endif
             
-            // MARK: - App details section
-            Section {
-                appInfoView
-                    .listRowInsets(.init())
-            }
-            
-            // MARK: - Screenshots section
-            if !screenshots.isEmpty {
-                Section(screenshotsSectionTitle) {
-                    screenshotsView
-                        .listRowInsets(.init())
-                        .listRowBackground(Color.clear)
-                }
-                .headerProminence(.increased)
-            }
-            
-            // MARK: - Description section
-            Section(detailsSectionTitle) {
-                Text(description)
-            }
-            .headerProminence(.increased)
         }
+        .listRowInsets(.init())
+        .listRowBackground(Color.clear)
+        #if os(macOS)
+        .padding(.bottom)
+        #endif
+    }
+    
+    @MainActor
+    private var appDetailsSection: some View {
+        Section {
+            appInfoView
+                .listRowInsets(.init())
+        }
+    }
+    
+    @MainActor
+    private var screenshotsSection: some View {
+        Section(screenshotsSectionTitle) {
+            screenshotsView
+                .listRowInsets(.init())
+                .listRowBackground(Color.clear)
+        }
+        .headerProminence(.increased)
+    }
+    
+    private var detailsSection: some View {
+        Section(detailsSectionTitle) {
+            Text(description)
+        }
+        .headerProminence(.increased)
     }
 }
 
@@ -157,7 +167,7 @@ extension AppDetailsView {
             }
         }
         .frame(maxWidth: iconSize, maxHeight: iconSize)
-        .clipShape(iconShapeStyle)
+        .clipShape(iconShape)
     }
     
     var nameText: some View {
@@ -205,6 +215,7 @@ extension AppDetailsView {
         #endif
     }
     
+    @MainActor
     var appInfoView: some View {
         ScrollView(.horizontal) {
             HStack {
@@ -220,11 +231,18 @@ extension AppDetailsView {
                     .lineLimit(1)
                     .padding(.horizontal)
                     
-                    Divider()
+                    if detail != details.last {
+                        Divider()
+                    }
                 }
             }
             .foregroundStyle(.secondary)
             .padding()
+        }
+        .apply {
+            if #available(iOS 17.0, macOS 14.0, *) {
+                $0.scrollTargetBehavior(.viewAligned)
+            } else { $0 }
         }
     }
     
@@ -251,6 +269,11 @@ extension AppDetailsView {
                     .buttonStyle(.plain)
                 }
             }
+        }
+        .apply {
+            if #available(iOS 17.0, macOS 14.0, *) {
+                $0.scrollTargetBehavior(.paging)
+            } else { $0 }
         }
     }
 }
