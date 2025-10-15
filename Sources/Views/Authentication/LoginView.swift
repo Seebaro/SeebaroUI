@@ -14,6 +14,7 @@ public struct LoginView: View {
         password: Binding<String>,
         isLoading: Bool,
         errorMessage: String,
+        logo: String? = nil,
         usernameFieldTitle: LocalizedStringKey = "Username",
         usernameFieldSymbol: String = "at",
         passwordFieldTitle: LocalizedStringKey = "Password",
@@ -25,6 +26,7 @@ public struct LoginView: View {
         self._password = password
         self.isLoading = isLoading
         self.errorMessage = errorMessage
+        self.logo = logo
         self.usernameFieldTitle = usernameFieldTitle
         self.usernameFieldSymbol = usernameFieldSymbol
         self.passwordFieldTitle = passwordFieldTitle
@@ -40,11 +42,12 @@ public struct LoginView: View {
     public var errorMessage: String
     
     /// Customizations
-    public var usernameFieldTitle: LocalizedStringKey
-    public var usernameFieldSymbol: String
-    public var passwordFieldTitle: LocalizedStringKey
-    public var passwordFieldSymbol: String
-    public var loginButtonTitle: LocalizedStringKey
+    public let logo: String?
+    public let usernameFieldTitle: LocalizedStringKey
+    public let usernameFieldSymbol: String
+    public let passwordFieldTitle: LocalizedStringKey
+    public let passwordFieldSymbol: String
+    public let loginButtonTitle: LocalizedStringKey
     
     /// Login action
     public var loginAction: () -> Void
@@ -98,13 +101,15 @@ extension LoginView {
             Spacer()
             
             // MARK: - App Logo
-            Image(.seebaro)
-                .resizable()
-                .foregroundStyle(.primary)
-                .aspectRatio(contentMode: .fit)
-                .padding()
-                .frame(maxHeight: 150)
-                .shadow(radius: 2)
+            if let logo {
+                Image(logo)
+                    .resizable()
+                    .foregroundStyle(.primary)
+                    .aspectRatio(contentMode: .fit)
+                    .padding()
+                    .frame(maxHeight: 150)
+                    .shadow(radius: 2)
+            }
             #endif
             
             VStack {
@@ -113,15 +118,15 @@ extension LoginView {
                     Label {
                         // MARK: - Username Field
                         TextField(usernameFieldTitle, text: $username)
-                            .textContentType(.username)
                             .submitLabel(.next)
+                            .textContentType(.username)
+                            .disableAutocorrection(true)
                             .focused($focusedField, equals: .username)
                             .disabled(isLoading)
-                            .padding()
-                            .disableAutocorrection(true)
                             #if os(iOS)
                             .autocapitalization(.none)
                             #endif
+                            .padding()
                             .onSubmit {
                                 focusedField = .password
                             }
@@ -131,11 +136,8 @@ extension LoginView {
                             .apply {
                                 if #available(iOS 18.0, macOS 15.0, tvOS 18.0, visionOS 2.0, watchOS 11.0, *) {
                                     $0.symbolEffect(.wiggle, value: warningUsername)
-                                        
-                                } else if #available(iOS 17.0, macOS 14.0, tvOS 17.0, visionOS 1.0, watchOS 10.0, *) {
-                                    $0.symbolEffect(.bounce, value: warningUsername)
                                 } else {
-                                    $0
+                                    $0.symbolEffect(.bounce, value: warningUsername)
                                 }
                             }
                     }
@@ -167,10 +169,13 @@ extension LoginView {
                 }
                 .textFieldStyle(.plain)
                 .padding(.horizontal)
-                .background(
-                    .regularMaterial,
-                    in: RoundedRectangle(cornerRadius: 10)
-                )
+                .apply {
+                    if #available(iOS 26.0, macOS 26.0, watchOS 26.0, tvOS 26.0, *) {
+                        $0.glassEffect(in: .rect(cornerRadius: 16))
+                    } else {
+                        $0.background(.regularMaterial, in: .rect(cornerRadius: 16))
+                    }
+                }
                 
                 // MARK: - Login button
                 ZStack {
@@ -180,21 +185,21 @@ extension LoginView {
                             .fontWeight(.semibold)
                             .frame(maxWidth: .infinity)
                     }
-                    .frame(maxWidth: .infinity)
-                    .cornerRadius(10)
-                    .controlSize(.large)
-                    .buttonStyle(.borderedProminent)
                     .padding(.vertical)
                     .disabled(isLoading)
-                    #if os(iOS)
+                    .sensoryFeedback(.error, trigger: !warningUsername || !warningPassword || !errorMessage.isEmpty)
                     .apply {
-                        if #available(iOS 17.0, *) {
-                            $0.sensoryFeedback(.error, trigger: !warningUsername || !warningPassword || !errorMessage.isEmpty)
+                        if #available(iOS 26.0, macOS 26.0, watchOS 26.0, tvOS 26.0, *) {
+                            $0
+                              .controlSize(.extraLarge)
+                              .buttonStyle(.glassProminent)
                         } else {
                             $0
+                              .controlSize(.large)
+                              .buttonStyle(.borderedProminent)
                         }
                     }
-                    #endif
+                    
                     if isLoading {
                         ProgressView()
                     }
@@ -213,7 +218,6 @@ extension LoginView {
     }
 }
 
-@available(iOS 17.0, macOS 14.0, watchOS 10.0, *)
 #Preview {
     @Previewable @State var username: String = ""
     @Previewable @State var password: String = ""
