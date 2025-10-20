@@ -13,22 +13,25 @@ public struct AppRowView: View {
         title: String,
         subtitlte: String,
         icon: String,
-        downloadAction: @escaping () -> Void
+        actionTitle: LocalizedStringResource = "Install",
+        action: @escaping () -> Void
     ) {
         self.title = title
         self.subtitlte = subtitlte
         self.icon = icon
-        self.downloadAction = downloadAction
+        self.actionTitle = actionTitle
+        self.action = action
     }
     
     let title: String
     let subtitlte: String
     let icon: String
-    let downloadAction: () -> Void
+    let actionTitle: LocalizedStringResource
+    let action: () -> Void
     
     public var body: some View {
         HStack(spacing: 15) {
-            LazyImage(url: URL(string: icon)!) { state in
+            LazyImage(url: URL(string: icon)) { state in
                 if let image = state.image {
                     image.resizable()
                 } else {
@@ -50,8 +53,8 @@ public struct AppRowView: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             
-            Button(action: downloadAction) {
-                Text("Install")
+            Button(action: action) {
+                Text(actionTitle)
                     .font(.subheadline)
                     .fontWeight(.medium)
             }
@@ -75,7 +78,13 @@ public struct AppRowView: View {
             title: "Seebaro",
             subtitlte: "The Store",
             icon: "https://seebaro.ir/apple-touch-icon.png",
-            downloadAction: {}
+            action: {}
+        )
+        AppRowView(
+            title: "Archived App",
+            subtitlte: "Unavailable",
+            icon: "",
+            action: {}
         )
     }
 }
