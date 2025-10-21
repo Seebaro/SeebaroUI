@@ -14,12 +14,14 @@ public struct AppRowView: View {
         subtitlte: String,
         icon: String,
         actionTitle: LocalizedStringResource = "Install",
+        actionLoading: Bool = false,
         action: @escaping () -> Void
     ) {
         self.title = title
         self.subtitlte = subtitlte
         self.icon = icon
         self.actionTitle = actionTitle
+        self.actionLoading = actionLoading
         self.action = action
     }
     
@@ -27,6 +29,7 @@ public struct AppRowView: View {
     let subtitlte: String
     let icon: String
     let actionTitle: LocalizedStringResource
+    let actionLoading: Bool
     let action: () -> Void
     
     public var body: some View {
@@ -54,9 +57,14 @@ public struct AppRowView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             
             Button(action: action) {
-                Text(actionTitle)
-                    .font(.subheadline)
-                    .fontWeight(.medium)
+                if actionLoading {
+                    ProgressView()
+                        .padding(.horizontal, 11)
+                } else {
+                    Text(actionTitle)
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                }
             }
             .controlSize(.regular)
             .apply {
@@ -84,6 +92,7 @@ public struct AppRowView: View {
             title: "Archived App",
             subtitlte: "Unavailable",
             icon: "",
+            actionLoading: true,
             action: {}
         )
     }
