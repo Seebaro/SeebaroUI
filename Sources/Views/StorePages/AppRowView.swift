@@ -59,7 +59,12 @@ public struct AppRowView: View {
             Button(action: action) {
                 if actionLoading {
                     ProgressView()
+                        #if os(iOS)
                         .padding(.horizontal, 11)
+                        #elseif os(macOS)
+                        .controlSize(.small)
+                        .padding(.horizontal, 8)
+                        #endif
                 } else {
                     Text(actionTitle)
                         .font(.subheadline)
