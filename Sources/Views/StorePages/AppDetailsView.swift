@@ -8,11 +8,11 @@
 import NukeUI
 import SwiftUI
 
-struct AppDetailsView: View {
+public struct AppDetailsView: View {
     public init(
         icon: String,
         name: String,
-        subtitle: String,
+        subtitle: String?,
         description: String,
         details: [AppInfo],
         detailsSectionTitle: LocalizedStringResource = "Details",
@@ -35,17 +35,17 @@ struct AppDetailsView: View {
         self.installAction = installAction
     }
     
-    public var icon: String
-    public var name: String
-    public var subtitle: String
-    public var description: String
-    public var details: [AppInfo]
-    public var detailsSectionTitle: LocalizedStringResource
-    public var screenshots: [URL]
-    public var screenshotAspectRatio: CGFloat
-    public var screenshotsSectionTitle: LocalizedStringResource
-    public var installTitle: LocalizedStringResource
-    public var installAction: () -> Void
+    public let icon: String
+    public let name: String
+    public let subtitle: String?
+    public let description: String
+    public let details: [AppInfo]
+    public let detailsSectionTitle: LocalizedStringResource
+    public let screenshots: [URL]
+    public let screenshotAspectRatio: CGFloat
+    public let screenshotsSectionTitle: LocalizedStringResource
+    public let installTitle: LocalizedStringResource
+    public let installAction: () -> Void
     
     private var iconSize: CGFloat {
         #if os(watchOS)
@@ -72,12 +72,13 @@ struct AppDetailsView: View {
     }
     
     public var body: some View {
-        List {
+        Form {
             appInfoSection
             appDetailsSection
             if !screenshots.isEmpty { screenshotsSection }
             detailsSection
         }
+        .formStyle(.grouped)
     }
     
     private var appInfoSection: some View {
@@ -174,12 +175,16 @@ struct AppDetailsView: View {
     }
     
     private var subtitleText: some View {
-        Text(subtitle)
-            .font(.callout)
-            .foregroundStyle(.secondary)
-            .multilineTextAlignment(.leading)
-            .minimumScaleFactor(0.8)
-            .frame(maxWidth: .infinity, alignment: .leading)
+        Group {
+            if let subtitle {
+                Text(subtitle)
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.leading)
+                    .minimumScaleFactor(0.8)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
     }
     
     private var installButton: some View {

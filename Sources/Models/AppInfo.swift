@@ -11,7 +11,7 @@ public struct AppInfo: Identifiable, Equatable {
         id: UUID = UUID(),
         icon: String,
         title: LocalizedStringKey,
-        subtitle: LocalizedStringKey
+        subtitle: String
     ) {
         self.id = id
         self.icon = icon
@@ -22,5 +22,5 @@ public struct AppInfo: Identifiable, Equatable {
     public var id: UUID = UUID()
     public var icon: String
     public var title: LocalizedStringKey
-    public var subtitle: LocalizedStringKey
+    public var subtitle: String
 }
